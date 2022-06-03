@@ -26,6 +26,7 @@ import { AdaptiveExerciseService } from './adaptive-exercise.service';
 import AnswerList = Exercise.AnswerList;
 import Answer = Exercise.Answer;
 import { BehaviorSubject } from 'rxjs';
+import { AudioPlayerService } from '../../../services/audio-player.service';
 
 const DEFAULT_EXERCISE_SETTINGS: GlobalExerciseSettings = {
   playCadence: true,
@@ -60,6 +61,7 @@ export class ExerciseStateService implements OnDestroy {
     private readonly _exerciseService: ExerciseService,
     private readonly _notesPlayer: PlayerService,
     private readonly _youtubePlayer: YouTubePlayerService,
+    private readonly _audioPlayer: AudioPlayerService,
     private readonly _exerciseSettingsData: ExerciseSettingsDataService,
     private readonly _adaptiveExerciseService: AdaptiveExerciseService,
   ) {
@@ -211,7 +213,7 @@ export class ExerciseStateService implements OnDestroy {
         await this._notesPlayer.playMultipleParts(cadence);
       }
       await this._playYouTubeQuestion(this._currentQuestion);
-    } else {
+    } else if (this._currentQuestion.type === 'notes') {
       const partsToPlay: PartToPlay[] = this._getCurrentQuestionPartsToPlay();
       if (cadence && this._globalSettings.playCadence) {
         partsToPlay.unshift(...cadence);
@@ -220,6 +222,10 @@ export class ExerciseStateService implements OnDestroy {
         partsToPlay.push(...this._getAfterCorrectAnswerParts());
       }
       await this._notesPlayer.playMultipleParts(partsToPlay);
+    } else if (this._currentQuestion.type === 'audio') {
+      await this._playAudioQuestion(this._currentQuestion);
+    } else {
+      throw new Error(`${this._currentQuestion.type} is not a recognizable question type`);
     }
     this._currentlyPlayingSegment = null;
   }
@@ -362,6 +368,15 @@ export class ExerciseStateService implements OnDestroy {
       },
     ]);
     await this._youtubePlayer.onStop();
+  }
+
+  private async _playAudioQuestion(question: Exercise.AudioQuestion): Promise<void> {
+    if (this._destroyed) {
+      return;
+    }
+    for (let segment of question.segments) {
+      await this._audioPlayer.play(segment.pathToAudio);
+    }
   }
 
   private _getCurrentQuestionPartsToPlay(): PartToPlay[] {

@@ -15,21 +15,23 @@ import { NotesWithChordsExercise } from './exercises/NotesWithChords/NotesWithCh
 import { ChordsInRealSongsExercise } from './exercises/ChordsInRealSongsExercise/ChordsInRealSongsExercise';
 import { Platform } from '@ionic/angular';
 import IExercise = Exercise.IExercise;
+import { InstrumentExercise } from './exercises/InstrumentExercise/InstrumentExercise';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ExerciseService {
   static readonly _exerciseList: IExercise[] = [
-    new NotesInKeyExercise() as unknown as IExercise, // TODO(OE-27)
-    new ChordsInKeyExercise() as unknown as IExercise, // TODO(OE-27)
-    new CommonChordProgressionsExercise() as unknown as IExercise, // TODO(OE-27)
+    new NotesInKeyExercise(),
+    new ChordsInKeyExercise(),
+    new CommonChordProgressionsExercise(),
     new ChordsInRealSongsExercise(),
-    new ChordTypeInKeyExercise() as unknown as IExercise, // TODO(OE-27)
-    new NotesWithChordsExercise() as unknown as IExercise, // TODO(OE-27)
-    new TriadInversionExercise() as unknown as IExercise, // TODO(OE-27)
-    // new ChordArpeggioExercise() as unknown as IExercise, // TODO(OE-27)
-    new IntervalExercise() as unknown as IExercise, // TODO(OE-27)
+    new ChordTypeInKeyExercise(),
+    new NotesWithChordsExercise(),
+    new TriadInversionExercise(),
+    new InstrumentExercise(),
+    // new ChordArpeggioExercise(),
+    new IntervalExercise(),
   ];
   private readonly _exerciseIdToExercise = _.keyBy(ExerciseService._exerciseList, 'id');
   static readonly ngComponents: Type<any>[] = ExerciseService._exerciseList
